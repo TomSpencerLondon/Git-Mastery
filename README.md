@@ -437,4 +437,37 @@ git commit --amend
 git rebase -i HEAD~5
 ```
 
+### Creating snapshots
+First we will create a directory and initialize a git repository
+```bash
+tom@tom-ubuntu:~/Projects$ mkdir Moon
+tom@tom-ubuntu:~/Projects$ cd Moon
+tom@tom-ubuntu:~/Projects/Moon$ git init
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+Initialised empty Git repository in /home/tom/Projects/Moon/.git/
+```
+
+We can view the .git file:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ ls -a
+.  ..  .git
+open .git
+```
+
+![image](https://user-images.githubusercontent.com/27693622/233596557-cf4efae6-a7d8-41fc-9fd2-0ef7d7c0dffd.png)
+
+#### Basic git workflow
+![image](https://user-images.githubusercontent.com/27693622/233597435-22010553-cd85-487d-9b17-8014f94fbe73.png)
+
+
+
 
