@@ -235,7 +235,7 @@ git log --patch # shows the actual changes made to each file
 
 #### Filtering the history
 ```bash
-git log --3 # shows the last 3 commits
+git log -3 # shows the last 3 commits
 git log --author="Mosh"
 git log --before="2020-01-01"
 git log --after="one week ago"
@@ -810,3 +810,505 @@ index 333c1e9..787e9a7 100644
 +bin
 
 ```
+
+We can show the difference between HEAD and 2 commits before:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git show HEAD~2
+commit a5e7671bdb84e73692ad088fbabfe8efbcb276b3
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 12:53:20 2023 +0100
+
+    Add bin.
+
+diff --git a/bin/app.bin b/bin/app.bin
+new file mode 100644
+index 0000000..ce01362
+--- /dev/null
++++ b/bin/app.bin
+@@ -0,0 +1 @@
++hello
+
+```
+We can also show changes for a specific file:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git show HEAD~1:.gitignore
+logs/
+bin
+```
+We can show all the files in the commit:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git ls-tree HEAD~1
+100644 blob 787e9a756a1b16bc07fcb8ee6ad0ca85d321b2fa	.gitignore
+040000 tree 64629cd51ef4a65a9d9cb9e656e1f46e07e1357f	bin
+100644 blob badfb70fd8b1725682b26674f7b2882e94078579	file1.js
+```
+
+### Git objects
+Git objects can be:
+- commits
+- blobs (Files)
+- Trees (Directories)
+- Tags
+
+#### Unstaging files
+We can use git restore undo changes to files:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git restore --staged file1.js
+tom@tom-ubuntu:~/Projects/Moon$ git status -s
+ M .gitignore
+ M file1.js
+A  file2.js
+```
+We can also restore after commits:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git restore --source=HEAD~1 file1.js
+tom@tom-ubuntu:~/Projects/Moon$ git status -s
+ M .gitignore
+?? file1.js
+
+```
+
+### Browsing History
+Here we will look at:
+- search for commits (by author, date, message, etc.)
+- View a commit
+- Restore your project to an earlier point
+- compare commits
+- view the history of a file
+- find a bad commit that introduced a bug
+
+#### getting a repository
+To show additions for each commit we can use:
+```bash
+git log --oneline --stat
+```
+to show changes for each commit we can use:
+```bash
+git log --oneline --patch
+```
+
+We can filter by author:
+```bash
+git log --oneline --author="Mosh"
+```
+and also by date:
+```bash
+git log --oneline --after="2020-08-17"
+git log --oneline --after="one week ago"
+```
+We can also search by message content:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --grep="GUI"
+24e86ee Add command line and GUI tools to the objectives.
+```
+We can search by the content of the commit:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline -S"OBJECTIVES"
+a642e12 (HEAD -> master) Add header to all pages.
+
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline -S"OBJECTIVES" --patch
+a642e12 (HEAD -> master) Add header to all pages.
+diff --git a/objectives.txt b/objectives.txt
+index d31b40a..c882718 100644
+--- a/objectives.txt
++++ b/objectives.txt
+@@ -1,3 +1,4 @@
++OBJECTIVES 
+ 
+ By the end of this course, you'll be able to 
+ - Create snapshots 
+```
+
+For commits between a range:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline fb0d184..edb3594
+edb3594 First draft of staging changes.
+24e86ee Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+```
+
+To check changes for a file:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline toc.txt
+a642e12 (HEAD -> master) Add header to all pages.
+50db987 Include the first section in TOC.
+ca49180 Initial commit.
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline -- toc.txt
+a642e12 (HEAD -> master) Add header to all pages.
+50db987 Include the first section in TOC.
+ca49180 Initial commit.
+
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --patch -- toc.txt
+a642e12 (HEAD -> master) Add header to all pages.
+diff --git a/toc.txt b/toc.txt
+index d019492..cc0798f 100644
+--- a/toc.txt
++++ b/toc.txt
+@@ -1,5 +1,5 @@
+ TABLE OF CONTENT
+-================
++
+ Creating Snapshots
+   - Initializing a repository
+   - Staging changes
+\ No newline at end of file
+50db987 Include the first section in TOC.
+diff --git a/toc.txt b/toc.txt
+index 8b13789..d019492 100644
+--- a/toc.txt
++++ b/toc.txt
+@@ -1 +1,5 @@
+-
++TABLE OF CONTENT
++================
++Creating Snapshots
++  - Initializing a repository
++  - Staging changes
+\ No newline at end of file
+ca49180 Initial commit.
+diff --git a/toc.txt b/toc.txt
+new file mode 100644
+index 0000000..8b13789
+--- /dev/null
++++ b/toc.txt
+@@ -0,0 +1 @@
++
+
+```
+This link is useful for git-log abbreviations:
+https://git-scm.com/docs/git-log
+
+For instance to show the author and the committer we can use:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --pretty=format:"%an committed %h"
+Moshfegh Hamedani committed a642e12
+Moshfegh Hamedani committed 50db987
+Moshfegh Hamedani committed 555b62e
+Moshfegh Hamedani committed 91f7d40
+Moshfegh Hamedani committed edb3594
+Moshfegh Hamedani committed 24e86ee
+Moshfegh Hamedani committed 36cd6db
+Moshfegh Hamedani committed 9b6ebfd
+Moshfegh Hamedani committed fa1b75e
+Moshfegh Hamedani committed dad47ed
+Moshfegh Hamedani committed fb0d184
+Moshfegh Hamedani committed 1ebb7a7
+Moshfegh Hamedani committed ca49180
+
+tom@tom-ubuntu:~/Projects/Venus$ git log --pretty=format:"%an committed %h on %cd"
+Moshfegh Hamedani committed a642e12 on Tue Aug 18 09:23:19 2020 -0700
+Moshfegh Hamedani committed 50db987 on Mon Aug 17 14:27:50 2020 -0700
+Moshfegh Hamedani committed 555b62e on Mon Aug 17 14:26:49 2020 -0700
+Moshfegh Hamedani committed 91f7d40 on Mon Aug 17 14:25:43 2020 -0700
+Moshfegh Hamedani committed edb3594 on Mon Aug 17 14:24:38 2020 -0700
+Moshfegh Hamedani committed 24e86ee on Mon Aug 17 14:23:52 2020 -0700
+Moshfegh Hamedani committed 36cd6db on Mon Aug 17 14:22:51 2020 -0700
+Moshfegh Hamedani committed 9b6ebfd on Mon Aug 17 14:22:17 2020 -0700
+Moshfegh Hamedani committed fa1b75e on Mon Aug 17 14:21:30 2020 -0700
+Moshfegh Hamedani committed dad47ed on Mon Aug 17 14:20:50 2020 -0700
+Moshfegh Hamedani committed fb0d184 on Mon Aug 17 14:18:09 2020 -0700
+Moshfegh Hamedani committed 1ebb7a7 on Mon Aug 17 14:17:31 2020 -0700
+Moshfegh Hamedani committed ca49180 on Mon Aug 17 14:17:15 2020 -0700
+
+``` 
+This puts the author in green:
+```bash
+ git log --pretty=format:"%Cgreen%an%Creset committed %h on %cd"
+```
+We can also add aliases:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git config --global alias.unstage "restore --staged ."
+tom@tom-ubuntu:~/Projects/Venus$ git unstage
+```
+
+To show a commit two commits before HEAD we can use:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git show HEAD~2
+commit 555b62e1ebb92c97fc69910ad0981a7d6dbbf8c6
+Author: Moshfegh Hamedani <moshfegh@live.com.au>
+Date:   Mon Aug 17 14:26:49 2020 -0700
+
+    Include the note about committing after staging the changes.
+
+diff --git a/sections/creating-snapshots/staging-changes.txt b/sections/creating-snapshots/staging-changes.txt
+index bddf7bd..506a158 100644
+--- a/sections/creating-snapshots/staging-changes.txt
++++ b/sections/creating-snapshots/staging-changes.txt
+@@ -7,3 +7,5 @@ To stage the changes, run:
+ You can add multiple files separated by a space. 
+ You can use a . to add all the files and subdirectories recursively.
+ 
++Once you stage the changes, you need to commit them to store the 
++proposed snapshot permanently. 
+\ No newline at end of file
+```
+
+To show the changes for a file two commits before:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git show HEAD~2:sections/creating-snapshots/staging-changes.txt
+STAGING CHANGES 
+===============
+To stage the changes, run:
+
+> git add <filename>
+
+You can add multiple files separated by a space. 
+You can use a . to add all the files and subdirectories recursively.
+
+Once you stage the changes, you need to commit them to store the 
+proposed snapshot permanently. 
+```
+We can also show diff with only the name of the file and status:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git diff HEAD~2 HEAD --name-only
+audience.txt
+objectives.txt
+sections/creating-snapshots/init.txt
+sections/creating-snapshots/staging-changes.txt
+toc.txt
+tom@tom-ubuntu:~/Projects/Venus$ git diff HEAD~2 HEAD --name-status
+M       audience.txt
+M       objectives.txt
+M       sections/creating-snapshots/init.txt
+M       sections/creating-snapshots/staging-changes.txt
+M       toc.txt
+
+```
+To see a complete snapshot we can checkout a commit:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git checkout 24e86ee
+Note: switching to '24e86ee'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 24e86ee Add command line and GUI tools to the objectives.
+```
+![image](https://user-images.githubusercontent.com/27693622/233656583-9337a5f7-7626-4f75-a120-348b37e4f44d.png)
+
+Our head is ad a detached position in the history so git log only shows the commits after the one we checked out:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline
+24e86ee (HEAD) Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --all
+a642e12 (master) Add header to all pages.
+50db987 Include the first section in TOC.
+555b62e Include the note about committing after staging the changes.
+91f7d40 Explain various ways to stage changes.
+edb3594 First draft of staging changes.
+24e86ee (HEAD) Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+```
+Above we use --all to see the commits before the current HEAD position.
+
+To put the HEAD back to the master branch we can use:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git checkout master
+Previous HEAD position was 24e86ee Add command line and GUI tools to the objectives.
+Switched to branch 'master'
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline
+a642e12 (HEAD -> master) Add header to all pages.
+50db987 Include the first section in TOC.
+555b62e Include the note about committing after staging the changes.
+91f7d40 Explain various ways to stage changes.
+edb3594 First draft of staging changes.
+24e86ee Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+```
+
+#### Git bisect
+
+We can use git bisect to find a bug. We don't want to checkout all the commits. We can use bisect to find the commit that introduced the bug.
+We use:
+- git bisect good
+- git bisect bad
+- git bisect reset
+
+To view short log:
+```bash
+git shortlog -n -s -e --before="" --after=""
+```
+
+To view number of changes on each commit we use:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --stat toc.txt
+a642e12 (HEAD -> master) Add header to all pages.
+ toc.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+50db987 Include the first section in TOC.
+ toc.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+ca49180 Initial commit.
+ toc.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+```
+
+To view the changes on each commit we use:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --patch toc.txt
+```
+
+If we remove or edit a file in error we can undo the change with git checkout on the file and then commit the change:
+```bash
+
+tom@tom-ubuntu:~/Projects/Venus$ git rm toc.txt
+rm 'toc.txt'
+tom@tom-ubuntu:~/Projects/Venus$ git commit -m "Remove toc.txt"
+[master bfbb678] Remove toc.txt
+ 1 file changed, 5 deletions(-)
+ delete mode 100644 toc.txt
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline toc.txt
+fatal: ambiguous argument 'toc.txt': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline -- toc.txt
+bfbb678 (HEAD -> master) Remove toc.txt
+a642e12 Add header to all pages.
+50db987 Include the first section in TOC.
+ca49180 Initial commit.
+tom@tom-ubuntu:~/Projects/Venus$ git checkout a642e12 toc.txt
+Updated 1 path from 246d37c
+tom@tom-ubuntu:~/Projects/Venus$ git status -s
+A  toc.txt
+tom@tom-ubuntu:~/Projects/Venus$ git commit -m "Restore toc.txt"
+[master 61cf79f] Restore toc.txt
+ 1 file changed, 5 insertions(+)
+ create mode 100644 toc.txt
+```
+We can use git blame to show who made the change to a file:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git blame audience.txt
+a642e122 (Moshfegh Hamedani 2020-08-18 09:23:19 -0700 1) AUDIENCE 
+a642e122 (Moshfegh Hamedani 2020-08-18 09:23:19 -0700 2) 
+fb0d184c (Moshfegh Hamedani 2020-08-17 14:18:09 -0700 3) This course is for anyone who wants to learn Git. 
+a642e122 (Moshfegh Hamedani 2020-08-18 09:23:19 -0700 4) No prior experience is required.
+tom@tom-ubuntu:~/Projects/Venus$ git blame -e audience.txt
+a642e122 (<moshfegh@live.com.au> 2020-08-18 09:23:19 -0700 1) AUDIENCE 
+a642e122 (<moshfegh@live.com.au> 2020-08-18 09:23:19 -0700 2) 
+fb0d184c (<moshfegh@live.com.au> 2020-08-17 14:18:09 -0700 3) This course is for anyone who wants to learn Git. 
+a642e122 (<moshfegh@live.com.au> 2020-08-18 09:23:19 -0700 4) No prior experience is required.
+tom@tom-ubuntu:~/Projects/Venus$ git blame -L 1,3 audience.txt
+a642e122 (Moshfegh Hamedani 2020-08-18 09:23:19 -0700 1) AUDIENCE 
+a642e122 (Moshfegh Hamedani 2020-08-18 09:23:19 -0700 2) 
+fb0d184c (Moshfegh Hamedani 2020-08-17 14:18:09 -0700 3) This course is for anyone who wants to learn Git. 
+```
+
+WeWe can restore changes after they have been added:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline
+61cf79f (HEAD -> master) Restore toc.txt
+bfbb678 Remove toc.txt
+a642e12 Add header to all pages.
+50db987 Include the first section in TOC.
+555b62e Include the note about committing after staging the changes.
+91f7d40 Explain various ways to stage changes.
+edb3594 First draft of staging changes.
+24e86ee Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+tom@tom-ubuntu:~/Projects/Venus$ git tag v1.0 bfbb678
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline
+61cf79f (HEAD -> master) Restore toc.txt
+bfbb678 (tag: v1.0) Remove toc.txt
+a642e12 Add header to all pages.
+50db987 Include the first section in TOC.
+555b62e Include the note about committing after staging the changes.
+91f7d40 Explain various ways to stage changes.
+edb3594 First draft of staging changes.
+24e86ee Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+```
+
+We can tag commits to make them easier to find:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git tag -a v1.1 -m "My version 1.1"
+tom@tom-ubuntu:~/Projects/Venus$ git tag
+v1.0
+v1.1
+tom@tom-ubuntu:~/Projects/Venus$ git tag -n
+v1.0            Remove toc.txt
+v1.1            My version 1.1
+tom@tom-ubuntu:~/Projects/Venus$ git show v1.1
+tag v1.1
+Tagger: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 15:26:36 2023 +0100
+
+My version 1.1
+
+commit 61cf79fcc0d1b47775e29a04678edbae4390520c (HEAD -> master, tag: v1.1)
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 15:22:10 2023 +0100
+
+    Restore toc.txt
+
+diff --git a/toc.txt b/toc.txt
+new file mode 100644
+index 0000000..cc0798f
+--- /dev/null
++++ b/toc.txt
+@@ -0,0 +1,5 @@
++TABLE OF CONTENT
++
++Creating Snapshots
++  - Initializing a repository
++  - Staging changes
+\ No newline at end of file
+tom@tom-ubuntu:~/Projects/Venus$ git tag -d v1.1
+Deleted tag 'v1.1' (was 8412a7e)
+tom@tom-ubuntu:~/Projects/Venus$ git tag
+v1.0
+
+```
+
+
+
+
+
+
+
