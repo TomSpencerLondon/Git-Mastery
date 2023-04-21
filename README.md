@@ -153,61 +153,88 @@ Essential commands every developer should know:
 ### Creating Snapshots
 
 #### Initialize a repository
+```bash
 git init
+```
 
 #### Add files to staging area
+```bash
 git add file1.js # stages a single file
 git add file1.js file2.js # stages multiple files
 git add *.js # stages all js files
 git add . # stages all files in directory
+```
 
 #### Viewing status
+```bash
 git status # full status
 git status -s # short status
+```
 
 #### Committing staged files
+```bash
 git commit -m "commit message" # commits with a one-line message
 git commit # opens the default editor to type a long message
+```
 
 #### Skipping the staging area
+```bash
 git commit -am "Message"
+```
 
 #### Removing files
+```bash
 git rm file1.js # removes file from working directory and stages the removal
 git rm --cached file1.js # removes file from staging area but keeps it in working directory
+```
 
 #### Moving files
+```bash
 git mv file1.js file2.js # moves file and stages the move
+```
 
 #### Viewing staged/unstaged changes
+```bash
 git diff # shows unstaged changes
 git diff --staged # shows staged changes
 git diff --cached # shows staged changes
+```
 
 #### Viewing commit history
+```bash
 git log # shows full commit history
 git log --oneline # shows short commit history
 git log --reverse # Lists commits from oldest to newest
+```
 
 #### Viewing a commit
+```bash
 git show 921a2ff # shows the commit with the given hash
 git show HEAD # shows the latest commit
 git show HEAD~2 # Two steps before last commit
 git show HEAD:file.js # shows the file as it was in the given commit
+```
 
 #### Unstaging files (undoing git add)
+```bash
 git restore --staged file.js # Copies the last version of file.js from repo to index
+```
 
 #### Restoring an earlier version of a file
+```bash
 git restore --source=HEAD~2 file.js
+```
 
 ### Browsing History
 
 #### Viewing the history
+```bash
 git log --stat # shows the list of modified files
 git log --patch # shows the actual changes made to each file
+```
 
 #### Filtering the history
+```bash
 git log --3 # shows the last 3 commits
 git log --author="Mosh"
 git log --before="2020-01-01"
@@ -216,10 +243,11 @@ git log --grep="GUI" # commits with GUI in their message
 git log -S"GUI" # commits with "GUI" in their patches'
 git log hash1...hash2 # range of commits
 git log file.txt # commits that touched file.txt
+```
 
 #### Formatting the log output
-git log --pretty=format:"%an commit %H" # shows the author name and commit hash
 ```bash
+git log --pretty=format:"%an commit %H" # shows the author name and commit hash
 tom@tom-ubuntu:~/Projects/Devops$ git log --pretty=format:"%an commit %H"
 tom commit 089ce591bc16d753b211f627137342cfb4e174d8
 tom commit 828a73e35385d26f92bd2a209ba11a022742bc08
@@ -233,7 +261,9 @@ tom commit b208b9ad8fc348736f581e4264df95c9fe4e13da
 ```
 
 #### Creating an alias
+```bash
 git config --global alias.lg "log --oneline"
+```
 
 #### Viewing a commit
 ```bash
@@ -249,46 +279,62 @@ git diff HEAD~2 HEAD file.js # changes to file.js only
 ```
 
 #### Checking out a commit
+```bash
 git checkout dad47ed # checks out the given commit
 git checkout master # checks out the master branch
+```
 
 #### Finding a bad commit
+```bash
 git bisect start # starts the bisect session
 git bisect bad # marks the current commit as bad
 git bisect good 1f34900 # marks the given commit as good
 git bisect reset # terminates the bisect session
+```
 
 #### Finding contributors
+```bash
 git shortlog # shows a list of contributors
+```
 
 #### Viewing the history of a file
+```bash
 git log file.txt # shows the commits that touched file.txt
 git log --stat file.txt # shows the statistics (the number of changes) for file.txt
 git log --patch file.txt # shows the patches (changes) applied to file.txt
+```
 
 #### Finding the author of lines
+```bash
 git blame file.txt # shows the author of each line in file.txt
+```
 
 #### Tagging
+```bash
 git tag v1.0 # tags the last commit as v1.0
 git tag v1.0 5e7a828 # Tags an earlier commit
 git tag # lists all the tags
 git tag -d v1.0 # deletes the tag
-
+```
 ### Branching and merging
 
 #### Managing branches
+```bash
 git branch bugfix # creates a new branch called bugfix
 git checkout bugfix # switches to the bugfix branch
 git switch bugfix # same as checkout
 git switch -C bugfix # creates a new branch and switches to it
 git branch -d bugfix # deletes the bugfix branch
+```
 
 #### Comparing branches
+```bash
 git log master..bugfix # List the commits in the bugfix branch not in master
 git diff master..bugfix # Shows the summary of changes
+```
 
 #### Stashing
+```bash
 git stash push -m "New tax rules" # creates a new stash
 git stash list # lists the stashes
 git stash show stash@{1} # shows the given stash
@@ -296,55 +342,76 @@ git stash show 1 # shortcut for stash@{1}
 git stash apply 1 # applies the given stash to the working dir
 git stash drop 1 # deletes the given stash
 git stash clear # deletes all stashes
+```
 
 #### Merging
+```bash
 git merge bugfix # merges the bugfix branch into the current branch
 git merge --no-ff bugfix # creates a merge commit even if FF is possible
 git merge --squash bugfix # performs a squash merge
 git merge --abort # aborts the merge
+```
 
 #### Viewing the merged branches
+```bash
 git branch --merged # lists the branches that have been merged into the current branch
 git branch --no-merged # lists the branches that have not been merged into the current branch
+```
 
 ### Rebasing
+```bash
 git rebase master # changes the base of the current branch
+```
 
 ### Cherry picking
+```bash
 git cherry-pick dad47ed # applies the given commit to the current branch
+```
 
 ### Collaboration
 #### Cloning a repository
+```bash
 git clone url
+```
 
 #### Syncing with remotes
+```bash
 git fetch origin master # fetches master from origin
 git fetch origin # fetches all objects from origin
 git fetch # shortcut for 'git fetch origin'
 git pull # fetch + merge
 git push origin master # pushes master to origin
 git push # shortcut for 'git push origin master'
+```
 
 #### Sharing tags
+```bash
 git push origin v1.0 # pushes the tag to origin
 git push origin --delete v1.0
+```
 
 #### Sharing branches
+```bash
 git branch -r # shows remote tracking branches
 git branch -vv # shows local and remote tracking branches
 git push -u origin bugfix # pushes bugfix to origin
 git push -d origin bugfix # removes bugfix from origin
+```
 
 #### Managing remotes
+```bash
 git remote # shows remote repos
 git remote add upstream url # adds a new remote called upstream
 git remote rm upstream # remotes upstream
+```
 
 ### Rewriting History
 #### Undoing commits
+```bash
 git reset --soft HEAD^ # removes the last commit, keeps change staged
 git reset --mixed HEAD^ # Unstages the changes as well
 git reset --hard HEAD^ # Discards local changes
+```
 
 #### Reverting commits
 ```bash
@@ -355,13 +422,19 @@ git revert --no-commit HEAD~3...
 ```
 
 #### Recovering lost commits
+```bash
 git reflog # shows the history of HEAD
 git reflog show bugfix # shows the history of bugfix pointer
+```
 
 #### Amending the last commit
+```bash
 git commit --amend
+```
 
 #### Interactive rebasing
+```bash
 git rebase -i HEAD~5
+```
 
 
