@@ -698,8 +698,115 @@ file1.js
 This link is useful for different templates for .gitignore for different languages:
 https://github.com/github/gitignore
 
+We can reduce the verbosity of git status with -s:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   file1.js
 
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	file2.js
 
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Moon$ git status -s
+ M file1.js
+?? file2.js
+```
+Here M = modified and ?? = untracked.
 
+#### Viewing staged and unstaged commits
+git status only lists the files changed. To see the difference we can use:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git diff --staged
+diff --git a/file1.js b/file1.js
+index badfb70..47c3216 100644
+--- a/file1.js
++++ b/file1.js
+@@ -1,3 +1,5 @@
+ hello
+ world
+ test
++sky
++ocean
+diff --git a/file2.js b/file2.js
+new file mode 100644
+index 0000000..f5e95e7
+--- /dev/null
++++ b/file2.js
+@@ -0,0 +1 @@
++sky
 
+```
+Here we are comparing two copies of the same file. We then have changes in the old copy and in the new copy indicated by plus
+and minus. 
 
+If we want to compare working directory with staging we just run:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git diff
+diff --git a/file1.js b/file1.js
+index 47c3216..8636dbe 100644
+--- a/file1.js
++++ b/file1.js
+@@ -1,4 +1,4 @@
+-hello
++hello world
+ world
+ test
+ sky
+
+```
+
+### Git log
+We can view the history of commits with git log:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git log --oneline
+b162a48 (HEAD -> master) Remove bin
+db0d1c8 Include bin/ in gitignore
+a5e7671 Add bin.
+abe9863 add gitignore
+00a21d9 Remove unused code.
+1b2cacd Fix the bug that prevented users from siging up
+e5cf52f Initial commit.
+tom@tom-ubuntu:~/Projects/Moon$ git log --oneline --reverese
+fatal: unrecognised argument: --reverese
+tom@tom-ubuntu:~/Projects/Moon$ git log --oneline --reverse
+e5cf52f Initial commit.
+1b2cacd Fix the bug that prevented users from siging up
+00a21d9 Remove unused code.
+abe9863 add gitignore
+a5e7671 Add bin.
+db0d1c8 Include bin/ in gitignore
+b162a48 (HEAD -> master) Remove bin
+
+```
+
+We can use git show to show the changes in a commit:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git log --oneline
+b162a48 (HEAD -> master) Remove bin
+db0d1c8 Include bin/ in gitignore
+a5e7671 Add bin.
+abe9863 add gitignore
+00a21d9 Remove unused code.
+1b2cacd Fix the bug that prevented users from siging up
+e5cf52f Initial commit.
+tom@tom-ubuntu:~/Projects/Moon$ git show db0d1c8
+commit db0d1c8985388c8a97e216f6e67644f6c230af34
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 12:54:18 2023 +0100
+
+    Include bin/ in gitignore
+
+diff --git a/.gitignore b/.gitignore
+index 333c1e9..787e9a7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1,2 @@
+ logs/
++bin
+
+```
