@@ -468,6 +468,238 @@ open .git
 #### Basic git workflow
 ![image](https://user-images.githubusercontent.com/27693622/233597435-22010553-cd85-487d-9b17-8014f94fbe73.png)
 
+#### Real example
+![image](https://user-images.githubusercontent.com/27693622/233598724-bebba593-36dd-4f4b-ac0e-29b27f656bb2.png)
+
+Git compresses the content and doesn't store duplicate content. Each commit contains a complete snapshot of our project.
+We add files to our project:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ echo hello > file1.txt
+tom@tom-ubuntu:~/Projects/Moon$ ls
+file1.txt
+tom@tom-ubuntu:~/Projects/Moon$ echo hello > file2.txt
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+
+No commits yet
+
+Untracked files:
+(use "git add <file>..." to include in what will be committed)
+file1.txt
+file2.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+We now have changes ready to be committed:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   file1.txt
+	new file:   file2.txt
+```
+We now make a change:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ echo world >> file1.txt
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   file1.txt
+	new file:   file2.txt
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   file1.txt
+```
+Git add took a snapshot and added that snapshot to the staging area. We now have a second version of the file.
+We then add the change to staging:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git add file1.txt
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+
+No commits yet
+
+Changes to be committed:
+  (use "git rm --cached <file>..." to unstage)
+	new file:   file1.txt
+	new file:   file2.txt
+```
+We now commit the change to our repository:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git commit
+hint: Waiting for your editor to close the file... CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+[master (root-commit) e5cf52f] Initial commit.
+ 2 files changed, 3 insertions(+)
+ create mode 100644 file1.txt
+ create mode 100644 file2.txt
+tom@tom-ubuntu:~/Projects/Moon$ git log
+commit e5cf52f88b68151c8cfbd0fa4ce601e4142ac34b (HEAD -> master)
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 10:26:37 2023 +0100
+
+    Initial commit.
+    
+    This is our first commit.
+```
+Commits shouldn't be too big or too small. We don't want to wait for the whole feature. Commits should be checkpoints for changes.
+Each commit should be a logical change. It is important to make the commit messages meaningful. If the commit represents a single unit of work
+it can help make the message easier to write. Most people use present tense:
+Fixes the bug rather than Fixed the bug
+
+We can also skip staging:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ echo test >> file1.txt
+tom@tom-ubuntu:~/Projects/Moon$ git commit -am "Fix the bug that prevented users from siging up"
+[master 1b2cacd] Fix the bug that prevented users from siging up
+ 1 file changed, 1 insertion(+)
+```
+
+#### Removing files
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    file2.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+The file is still in staging:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git ls-files
+file1.txt
+file2.txt
+```
+We can add the change to staging:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git add file2.txt
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes to be committed:
+(use "git restore --staged <file>..." to unstage)
+deleted:    file2.txttom@tom-ubuntu:~/Projects/Moon$ git add file2.txt
+        tom@tom-ubuntu:~/Projects/Moon$ git status
+        On branch master
+        Changes to be committed:
+        (use "git restore --staged <file>..." to unstage)
+        deleted:    file2.txt
+```
+We now don't have file2.txt in staging:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git ls-files
+file1.txt
+```
+We can now commit the change to our local repository:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git commit -m "Remove unused code."
+[master 00a21d9] Remove unused code.
+ 1 file changed, 1 deletion(-)
+ delete mode 100644 file2.txt
+```
+To remove the file from the working directory and staging area in one step we can run:
+```bash
+git rm file2.txt *.txt
+```
+
+#### Renaming files
+If we rename the file we have two changes:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ mv file1.txt main.js
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    file1.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	main.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+We now have to add both files:
+
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	deleted:    file1.txt
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	main.js
+
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Moon$ git add file1.txt main.js
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    file1.txt -> main.js
+
+```
+We can change the files and add them to git with:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git mv main.js file1.js
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    file1.txt -> file1.js
+```
+
+We can also add files to gitignore:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ mkdir logs
+tom@tom-ubuntu:~/Projects/Moon$ echo hello > logs/dev.log
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    file1.txt -> file1.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	logs/
+
+tom@tom-ubuntu:~/Projects/Moon$ echo logs/ > .gitignore
+tom@tom-ubuntu:~/Projects/Moon$ git status
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	renamed:    file1.txt -> file1.js
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.gitignore
+```
+We can also remove files that we have added by mistake:
+```bash
+tom@tom-ubuntu:~/Projects/Moon$ git rm --cached -r bin/
+rm 'bin/app.bin'
+tom@tom-ubuntu:~/Projects/Moon$ git ls-files
+.gitignore
+file1.js
+```
+This link is useful for different templates for .gitignore for different languages:
+https://github.com/github/gitignore
+
+
+
 
 
 
