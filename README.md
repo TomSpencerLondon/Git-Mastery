@@ -1,4 +1,6 @@
 # Git Mastery
+https://codewithmosh.com/courses/enrolled/1120640
+
 Here we will learn about:
 - Fundamental concepts of Git
 - Creating Snapshots
@@ -234,12 +236,17 @@ tom commit b208b9ad8fc348736f581e4264df95c9fe4e13da
 git config --global alias.lg "log --oneline"
 
 #### Viewing a commit
+```bash
+
 git show HEAD~2
 git show HEAD~2:file.js # shows the file as it was in the given commit
+```
 
 #### Comparing commits
+```bash
 git diff HEAD~2 HEAD # shows changes between two commits
 git diff HEAD~2 HEAD file.js # changes to file.js only
+```
 
 #### Checking out a commit
 git checkout dad47ed # checks out the given commit
@@ -340,10 +347,12 @@ git reset --mixed HEAD^ # Unstages the changes as well
 git reset --hard HEAD^ # Discards local changes
 
 #### Reverting commits
+```bash
 git revert 72856ea # reverts the given commit
 git revert HEAD~3.. # reverts the last 3 commits
 git revert HEAD~3..HEAD~1 # reverts the last 2 commits
 git revert --no-commit HEAD~3...
+```
 
 #### Recovering lost commits
 git reflog # shows the history of HEAD
