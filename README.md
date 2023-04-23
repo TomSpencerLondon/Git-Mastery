@@ -1755,3 +1755,390 @@ e95b243 first commit
 We can add releases with tags on github:
 ![image](https://user-images.githubusercontent.com/27693622/233861334-0e3a4af2-4b70-402c-be7b-42b5a839c605.png)
 
+#### Pushing a local branch
+
+We can push a local branch to origin with:
+```bash
+tom@tom-ubuntu:~/Projects/Mars$ git branch -vv
+* feature/change-password 23f4c68 add file 1
+  main                    23f4c68 [origin/main] add file 1
+tom@tom-ubuntu:~/Projects/Mars$ git branch -r
+  origin/main
+tom@tom-ubuntu:~/Projects/Mars$ git push -u origin feature/change-password
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+remote: 
+remote: Create a pull request for 'feature/change-password' on GitHub by visiting:
+remote:      https://github.com/TomSpencerLondon/Mars/pull/new/feature/change-password
+remote: 
+To github.com:TomSpencerLondon/Mars.git
+ * [new branch]      feature/change-password -> feature/change-password
+branch 'feature/change-password' set up to track 'origin/feature/change-password'.
+```
+
+### Rewriting history
+- Why and when to rewrite history
+- Undo or revert commits
+- Use interactive rebasing to rewrite history
+- Recover lost commits
+
+#### Why rewrite history
+- History is for what was changed why and when
+Bad history:
+- poor commit messages
+- large commits
+- small commits
+
+We want a clean readable history to tell the story of the project from day one.
+
+#### Tools
+- squash small, related commits
+- split large commits
+- reword commit messages
+- drop unwanted commits
+- modify commits
+
+#### The Golden Rule of Rewriting history
+- Don't rewrite history that has been shared with others
+Commits in git are immutable. We can't change them. We can only create new commits that reference the old ones.
+
+This is the history of our project:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* 088455d (HEAD -> master) .
+* f666091 WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+```
+There are a few issues with the history. There is a typo in "Render restaurants the map.", the WIP commit is noisy and the fix typo
+are noisy commits so we can change the messages or drop the commits. There is also a commit that we may want to split into two
+commits: "Update terms of service and Google Map SDK version.".
+
+#### Undoing commits
+If the commit has been merged we can use git revert HEAD otherwise we can use reset:
+```bash
+git reset --hard HEAD~1
+```
+For git reset the options are:
+- --soft: reset the index but not the working tree (i.e., the changed files are preserved but not marked for commit) and
+  HEAD is updated to the specified commit.
+- --mixed: reset the index and working tree. Any changes to tracked files in the working tree since <commit> are preserved
+  but not marked for commit. (This is the default.)
+- --hard: reset the index and working tree. Any changes to tracked files in the working tree since <commit> are discarded.
+
+This is soft:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git show HEAD
+commit 088455d5a7660595eb4b73a7b9dfe07d53f1260d (HEAD -> master)
+Author: Moshfegh Hamedani <moshfegh@live.com.au>
+Date:   Thu Sep 10 09:28:40 2020 -0700
+
+    .
+
+diff --git a/terms.txt b/terms.txt
+index 6ab9fed..63cbee7 100644
+--- a/terms.txt
++++ b/terms.txt
+@@ -1 +1,2 @@
+ completed
++TEST
+tom@tom-ubuntu:~/Projects/Mercury$ git reset --soft HEAD~1
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* f666091 (HEAD -> master) WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git status -s
+M  terms.txt
+```
+
+#### Revert
+We can revert a commit with:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* f666091 (HEAD -> master) WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git revert HEAD~3..HEAD
+```
+This will revert HEAD, 111bd75 and 72856ea. 
+
+This is noisy so we can reset the change:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* c7295e4 (HEAD -> master) Revert "WIP"
+* dd018df Revert "Update terms of service and Google Map SDK version."
+* e83c6e8 Revert "WIP"
+* f666091 WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git reset --hard HEAD~3
+HEAD is now at f666091 WIP
+```
+This is a less noisy revert:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git revert --no-commit HEAD~3..
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* f666091 (HEAD -> master) WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+```
+We can complete the revert with git revert --continue or get out of the state with git revert --abort.
+
+If we make a mistake we can undo the work with reflog:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git reset --hard HEAD~6
+HEAD is now at af26a96 Fix a typo.
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* af26a96 (HEAD -> master) Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git reflog
+af26a96 (HEAD -> master) HEAD@{0}: reset: moving to HEAD~6
+14746c4 HEAD@{1}: commit: Revert bad code.
+f666091 HEAD@{2}: reset: moving to HEAD~3
+c7295e4 HEAD@{3}: revert: Revert "WIP"
+dd018df HEAD@{4}: revert: Revert "Update terms of service and Google Map SDK version."
+e83c6e8 HEAD@{5}: revert: Revert "WIP"
+f666091 HEAD@{6}: reset: moving to HEAD
+f666091 HEAD@{7}: reset: moving to HEAD
+f666091 HEAD@{8}: reset: moving to HEAD~1
+088455d HEAD@{9}: commit: .
+f666091 HEAD@{10}: commit: WIP
+111bd75 HEAD@{11}: commit: Update terms of service and Google Map SDK version.
+72856ea HEAD@{12}: commit: WIP
+8441b05 HEAD@{13}: commit: Add a reference to Google Map SDK.
+8527033 HEAD@{14}: commit: Change the color of restaurant icons.
+af26a96 (HEAD -> master) HEAD@{15}: commit: Fix a typo.
+6fb2ba7 HEAD@{16}: commit: Render restaurants the map.
+70ef834 HEAD@{17}: commit (initial): Initial commit
+```
+We can then use the reflog to reset to a previous state:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git reset --hard HEAD@{1}
+HEAD is now at 14746c4 Revert bad code.
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* 14746c4 (HEAD -> master) Revert bad code.
+* f666091 WIP
+* 111bd75 Update terms of service and Google Map SDK version.
+* 72856ea WIP
+* 8441b05 Add a reference to Google Map SDK.
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+```
+We can amend changes to earlier commits with amend:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git commit --amend
+hint: Waiting for your editor to close the file... CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+[master 6a21170] Render cafes on the map
+ Date: Sun Apr 23 22:13:19 2023 +0100
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+```
+
+We can now see the change on the commit:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git show HEAD
+commit 6a21170c57efd58c4d7bcb4aee75c69d59d8dd1c (HEAD -> master)
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Sun Apr 23 22:13:19 2023 +0100
+
+    Render cafes on the map
+
+diff --git a/map.txt b/map.txt
+index ec02c61..d6d87ce 100644
+--- a/map.txt
++++ b/map.txt
+@@ -1 +1,2 @@
+-red restaurants
++blue restaurants
++cafes
+```
+If we want to undo adding the file to the last commit we can do:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git reset --mixed HEAD~1
+Unstaged changes after reset:
+M	map.txt
+tom@tom-ubuntu:~/Projects/Mercury$ git status -s
+ M map.txt
+?? file1.txt
+tom@tom-ubuntu:~/Projects/Mercury$ git clean -fd
+Removing file1.txt
+```
+We can then add and commit the file:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git add .
+tom@tom-ubuntu:~/Projects/Mercury$ git commit -m "Render cafes on the map."
+[master 37f3159] Render cafes on the map.
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline
+37f3159 (HEAD -> master) Render cafes on the map.
+14746c4 Revert bad code.
+f666091 WIP
+111bd75 Update terms of service and Google Map SDK version.
+72856ea WIP
+8441b05 Add a reference to Google Map SDK.
+8527033 Change the color of restaurant icons.
+af26a96 Fix a typo.
+6fb2ba7 Render restaurants the map.
+70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git show HEAD
+commit 37f315966a725267998d89bf059e3008c703e621 (HEAD -> master)
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Sun Apr 23 22:18:45 2023 +0100
+
+    Render cafes on the map.
+
+diff --git a/map.txt b/map.txt
+index ec02c61..d6d87ce 100644
+--- a/map.txt
++++ b/map.txt
+@@ -1 +1,2 @@
+-red restaurants
++blue restaurants
++cafes
+```
+
+#### Amend earlier commits
+We can edit earlier commits with rebase:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline
+37f3159 (HEAD -> master) Render cafes on the map.
+14746c4 Revert bad code.
+f666091 WIP
+111bd75 Update terms of service and Google Map SDK version.
+72856ea WIP
+8441b05 Add a reference to Google Map SDK.
+8527033 Change the color of restaurant icons.
+af26a96 Fix a typo.
+6fb2ba7 Render restaurants the map.
+70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/Mercury$ git rebase -i 8527033
+```
+This opens a text editor with the following:
+```bash
+edit 8441b05 Add a reference to Google Map SDK.
+pick 72856ea WIP
+pick 111bd75 Update terms of service and Google Map SDK version.
+pick f666091 WIP
+pick 14746c4 Revert bad code.
+pick 37f3159 Render cafes on the map.
+
+# Rebase 8527033..37f3159 onto 8527033 (6 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup [-C | -c] <commit> = like "squash" but keep only the previous
+#                    commit's log message, unless -C is used, in which case
+#                    keep only this commit's message; -c is same as -C but
+#                    opens the editor
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+#         create a merge commit using the original merge commit's
+#         message (or the oneline, if no original merge commit was
+#         specified); use -c <commit> to reword the commit message
+# u, update-ref <ref> = track a placeholder for the <ref> to be updated
+#                       to this position in the new commits. The <ref> is
+#                       updated at the end of the rebase
+#
+# These lines can be re-ordered; they are executed from top to bottom.
+#
+# If you remove a line here THAT COMMIT WILL BE LOST.
+#
+# However, if you remove everything, the rebase will be aborted.
+#
+```
+
+We now change a file on this commit:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ echo license > license.txt
+tom@tom-ubuntu:~/Projects/Mercury$ git add .
+tom@tom-ubuntu:~/Projects/Mercury$ git commit --amend
+hint: Waiting for your editor to close the file... CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+[detached HEAD bfa0651] Add a reference to Google Map SDK.
+ Author: Moshfegh Hamedani <moshfegh@live.com.au>
+ Date: Wed Sep 9 17:41:49 2020 -0700
+ 2 files changed, 2 insertions(+)
+ create mode 100644 license.txt
+ create mode 100644 package.txt
+
+```
+
+The graph now looks like this:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git log --oneline --all --graph
+* bfa0651 (HEAD) Add a reference to Google Map SDK.
+| * 37f3159 (master) Render cafes on the map.
+| * 14746c4 Revert bad code.
+| * f666091 WIP
+| * 111bd75 Update terms of service and Google Map SDK version.
+| * 72856ea WIP
+| * 8441b05 Add a reference to Google Map SDK.
+|/  
+* 8527033 Change the color of restaurant icons.
+* af26a96 Fix a typo.
+* 6fb2ba7 Render restaurants the map.
+* 70ef834 Initial commit
+
+```
+We now continue the rebase:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git rebase --continue
+```
+git show on the commit shows the changes:
+```bash
+tom@tom-ubuntu:~/Projects/Mercury$ git show bfa0651
+commit bfa06512d06f347b32adbb0a082301739ec12385
+Author: Moshfegh Hamedani <moshfegh@live.com.au>
+Date:   Wed Sep 9 17:41:49 2020 -0700
+
+    Add a reference to Google Map SDK.
+
+diff --git a/license.txt b/license.txt
+new file mode 100644
+index 0000000..8da8489
+--- /dev/null
++++ b/license.txt
+@@ -0,0 +1 @@
++license
+diff --git a/package.txt b/package.txt
+new file mode 100644
+index 0000000..7324ece
+--- /dev/null
++++ b/package.txt
+@@ -0,0 +1 @@
++Google Map 1.0.0
+```
+
+
