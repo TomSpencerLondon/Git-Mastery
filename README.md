@@ -2141,4 +2141,15 @@ index 0000000..7324ece
 +Google Map 1.0.0
 ```
 
-
+We can also split commits with rebase with the following commands:
+```bash
+git rebase -i f9162d5^
+git log --oneline --all --graph
+git reset HEAD^
+git status -s
+git add package.txt
+git commit -m "update google map sdk version 1.0 - 2.0"
+git log --oneline --all --graph
+git add terms.txt
+git commit -m "add terms of service"
+```
