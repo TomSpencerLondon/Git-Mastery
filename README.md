@@ -2143,13 +2143,66 @@ index 0000000..7324ece
 
 We can also split commits with rebase with the following commands:
 ```bash
-git rebase -i f9162d5^
-git log --oneline --all --graph
-git reset HEAD^
-git status -s
-git add package.txt
-git commit -m "update google map sdk version 1.0 - 2.0"
-git log --oneline --all --graph
-git add terms.txt
-git commit -m "add terms of service"
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git log --oneline --all --graph
+* 5394fa3 (HEAD -> master) Update terms of service and Google Map SDK version.
+* 34cd4e2 Render restaurants the map.
+* 6931362 Add a reference to Google Map SDK.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git rebase -i 5394fa3^
+hint: Waiting for your editor to close the file... CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Stopped at 5394fa3...  Update terms of service and Google Map SDK version.
+You can amend the commit now, with
+
+  git commit --amend 
+
+Once you are satisfied with your changes, run
+
+  git rebase --continue
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git log --oneline --all --graph
+* 5394fa3 (HEAD, master) Update terms of service and Google Map SDK version.
+* 34cd4e2 Render restaurants the map.
+* 6931362 Add a reference to Google Map SDK.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git reset HEAD^
+Unstaged changes after reset:
+M	map.txt
+M	package.txt
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git status -s
+ M map.txt
+ M package.txt
+?? .idea/
+?? terms.txt
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git add map.txt package.txt
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git commit -m "update google map sdk version"
+[detached HEAD 73ecde7] update google map sdk version
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git log --oneline --all --graph
+* 73ecde7 (HEAD) update google map sdk version
+| * 5394fa3 (master) Update terms of service and Google Map SDK version.
+|/  
+* 34cd4e2 Render restaurants the map.
+* 6931362 Add a reference to Google Map SDK.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git add terms.txt
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git commit -m "Add terms of service"
+[detached HEAD e42e6d9] Add terms of service
+ 1 file changed, 2 insertions(+)
+ create mode 100644 terms.txt
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git log --oneline --all --graph
+* e42e6d9 (HEAD) Add terms of service
+* 73ecde7 update google map sdk version
+| * 5394fa3 (master) Update terms of service and Google Map SDK version.
+|/  
+* 34cd4e2 Render restaurants the map.
+* 6931362 Add a reference to Google Map SDK.
+* 70ef834 Initial commit
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git rebase --continue
+Successfully rebased and updated refs/heads/master.
+tom@tom-ubuntu:~/Projects/rebase-practice/mercury$ git log --oneline --all --graph
+* e42e6d9 (HEAD -> master) Add terms of service
+* 73ecde7 update google map sdk version
+* 34cd4e2 Render restaurants the map.
+* 6931362 Add a reference to Google Map SDK.
+* 70ef834 Initial commit
+
 ```
