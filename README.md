@@ -1307,8 +1307,385 @@ v1.0
 ```
 
 
+### Branching
+In this section we will learn:
+- How to use branches
+- Compare branches
+- Merge branches
+- Resolve merge conflicts
+- Undo a faulty merge
+- Essential tools (stashing, cherry picking)
 
+#### What are branches?
+![image](https://user-images.githubusercontent.com/27693622/233728158-a0e0d85b-c193-4d8e-969d-b34ba00de74f.png)
 
+Branching allows us to diverge from the main line of work and continue to work without messing with the main line.
+We complete our code on a separate feature branch and then when the work is finished we merge into master.
+This keeps master as a clean line of work.
 
+The master branch is a pointer to the last commit in the main line of work.
+When we create a new branch, Git creates a new pointer to the same commit as the master branch.
+When we commit, Git moves the pointer forward automatically. We can add a feature branch from the master branch at any point.
+When we move to another branch git moves the head pointer to the latest commit in that branch.
 
+![image](https://user-images.githubusercontent.com/27693622/233729047-49b8a177-dfd8-4e06-be24-89df8bf7d484.png)
+
+We can create a branch with the following commands:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git branch bugfix
+tom@tom-ubuntu:~/Projects/Venus$ git branch
+  bugfix
+* master
+tom@tom-ubuntu:~/Projects/Venus$ git switch bugfix
+Switched to branch 'bugfix'
+tom@tom-ubuntu:~/Projects/Venus$ git branch -m bugfix bugfix/signup-form
+tom@tom-ubuntu:~/Projects/Venus$ vi audience.txt
+tom@tom-ubuntu:~/Projects/Venus$ git status
+On branch bugfix/signup-form
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   audience.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Venus$ git add audience.txt 
+tom@tom-ubuntu:~/Projects/Venus$ git commit -m "Fix bug preventing signup"
+[bugfix/signup-form 7870993] Fix bug preventing signup
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline
+7870993 (HEAD -> bugfix/signup-form) Fix bug preventing signup
+3ba242d (master) add note on audience
+2455eab add note for sales-page
+710409d Edit gitignore to add files to ignore
+61cf79f Restore toc.txt
+bfbb678 (tag: v1.0) Remove toc.txt
+a642e12 Add header to all pages.
+50db987 Include the first section in TOC.
+555b62e Include the note about committing after staging the changes.
+91f7d40 (tag: v0.8) Explain various ways to stage changes.
+edb3594 First draft of staging changes.
+24e86ee Add command line and GUI tools to the objectives.
+36cd6db Include the command prompt in code sample.
+9b6ebfd Add a header to the page about initializing a repo.
+fa1b75e Include the warning about removing .git directory.
+dad47ed Write the first draft of initializing a repo.
+fb0d184 Define the audience.
+1ebb7a7 Define the objectives.
+ca49180 Initial commit.
+```
+We can compare commits on the two branches:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log master..bugfix/signup-form 
+commit 7870993d2d453a94d88081d72dedf3b2a6edf448 (bugfix/signup-form)
+Author: tom <tomspencerlondon@gmail.com>
+Date:   Fri Apr 21 21:33:25 2023 +0100
+
+    Fix bug preventing signup
+
+```
+We can also compare the code on the two branches:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git diff master..bugfix/signup-form 
+diff --git a/audience.txt b/audience.txt
+index 38a393a..e7ebd24 100644
+--- a/audience.txt
++++ b/audience.txt
+@@ -1,5 +1,4 @@
+-AUDIENCE 
++WHO THIS COURSE IS FOR
++===================== 
+ 
+ This course is for anyone who wants to learn Git. 
+-No prior experience is required.
+-Developers and technology professionals will be the main audience.
+```
+We can also use a shorter comparison command:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git diff --name-status bugfix/signup-form 
+M       audience.txt
+```
+
+We can stash changes:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ vi audience.txt 
+tom@tom-ubuntu:~/Projects/Venus$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   audience.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Venus$ git stash push -m "New tax rules."
+Saved working directory and index state On master: New tax rules.
+tom@tom-ubuntu:~/Projects/Venus$ git status
+On branch master
+nothing to commit, working tree clean
+
+```
+
+We can also store different stashes:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ vi audience.txt 
+tom@tom-ubuntu:~/Projects/Venus$ git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   audience.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Venus$ git stash push -m "New tax rules."
+Saved working directory and index state On master: New tax rules.
+tom@tom-ubuntu:~/Projects/Venus$ git status
+On branch master
+nothing to commit, working tree clean
+tom@tom-ubuntu:~/Projects/Venus$ echo hello > newfile.txt
+tom@tom-ubuntu:~/Projects/Venus$ git stash push -am "My new stash."
+Saved working directory and index state On master: My new stash.
+tom@tom-ubuntu:~/Projects/Venus$ git stash list
+stash@{0}: On master: My new stash.
+stash@{1}: On master: New tax rules.
+tom@tom-ubuntu:~/Projects/Venus$ git switch bugfix/signup-form 
+Switched to branch 'bugfix/signup-form'
+tom@tom-ubuntu:~/Projects/Venus$ git switch master
+Switched to branch 'master'
+tom@tom-ubuntu:~/Projects/Venus$ git stash show 1
+ audience.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+tom@tom-ubuntu:~/Projects/Venus$ git stash apply 1
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   audience.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+tom@tom-ubuntu:~/Projects/Venus$ git stash list
+stash@{0}: On master: My new stash.
+stash@{1}: On master: New tax rules.
+tom@tom-ubuntu:~/Projects/Venus$ git stash drop 1
+Dropped refs/stash@{1} (9a851b8828ac798d7aede2e2b38b3ce5a17ee6eb)
+tom@tom-ubuntu:~/Projects/Venus$ git stash drop 0
+Dropped refs/stash@{0} (3a8ee40aea4b76f31e41c3f32310fee8f938ebd8)
+```
+
+### Merging
+- fast forward merges
+- 3 way merges
+
+Fast forward merges are possible when there is only one branch and the branch is ahead of the master branch.
+It brings the pointer of the master branch forwards.
+
+In the following example the branches have diverged.
+
+![image](https://user-images.githubusercontent.com/27693622/233733855-7d0ef22c-e724-4e95-8aae-e69f077fc340.png)
+
+This is a 3 way merge. The master branch is the base branch. The other two branches are the head branches.
+Git creates a new commit called a merge commit to combine the common ancestor and the tip of each branch.
+
+We can view the branches with:
+```bash
+git log --oneline --all --graph
+* 7870993 (bugfix/signup-form) Fix bug preventing signup
+* 3ba242d (HEAD -> master) add note on audience
+* 2455eab add note for sales-page
+* 710409d Edit gitignore to add files to ignore
+* 61cf79f Restore toc.txt
+* bfbb678 (tag: v1.0) Remove toc.txt
+* a642e12 Add header to all pages.
+* 50db987 Include the first section in TOC.
+* 555b62e Include the note about committing after staging the changes.
+* 91f7d40 (tag: v0.8) Explain various ways to stage changes.
+* edb3594 First draft of staging changes.
+* 24e86ee Add command line and GUI tools to the objectives.
+* 36cd6db Include the command prompt in code sample.
+* 9b6ebfd Add a header to the page about initializing a repo.
+* fa1b75e Include the warning about removing .git directory.
+* dad47ed Write the first draft of initializing a repo.
+* fb0d184 Define the audience.
+* 1ebb7a7 Define the objectives.
+* ca49180 Initial commit.
+```
+This shows a linear path so we can use the fast-forward merge:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git merge bugfix/signup-form 
+Updating 3ba242d..7870993
+Fast-forward
+ audience.txt | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+```
+
+We can also use the --no-ff option to force a merge commit:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git merge --no-ff bugfix/login
+hint: Waiting for your editor to close the file... CompileCommand: exclude com/intellij/openapi/vfs/impl/FilePartNodeRoot.trieDescend bool exclude = true
+Merge made by the 'ort' strategy.
+ toc.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+```
+
+### Three way merges
+
+Here we have made commits on two separate branches:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ vi objectives.txt 
+tom@tom-ubuntu:~/Projects/Venus$ git add objectives.txt 
+tom@tom-ubuntu:~/Projects/Venus$ git commit -m "Edit objectives.txt"
+[master 879bde6] Edit objectives.txt
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --all --graph
+* 879bde6 (HEAD -> master) Edit objectives.txt
+| * dcabad0 (feature/change-password) Build password form
+|/  
+*   16e20eb Merge branch 'bugfix/login'
+|\  
+| * 2b4b44b (bugfix/login) Add table of content edit
+|/  
+* 7870993 (bugfix/signup-form) Fix bug preventing signup
+| * 3e36f77 (refs/stash) WIP on master: 3ba242d add note on audience
+|/| 
+| * 754d6f0 index on master: 3ba242d add note on audience
+|/  
+* 3ba242d add note on audience
+* 2455eab add note for sales-page
+* 710409d Edit gitignore to add files to ignore
+* 61cf79f Restore toc.txt
+* bfbb678 (tag: v1.0) Remove toc.txt
+* a642e12 Add header to all pages.
+* 50db987 Include the first section in TOC.
+* 555b62e Include the note about committing after staging the changes.
+* 91f7d40 (tag: v0.8) Explain various ways to stage changes.
+* edb3594 First draft of staging changes.
+* 24e86ee Add command line and GUI tools to the objectives.
+* 36cd6db Include the command prompt in code sample.
+* 9b6ebfd Add a header to the page about initializing a repo.
+* fa1b75e Include the warning about removing .git directory.
+* dad47ed Write the first draft of initializing a repo.
+* fb0d184 Define the audience.
+* 1ebb7a7 Define the objectives.
+* ca49180 Initial commit.
+
+```
+The branches are said to have diverged. We have to run a three way merge:
+```bash
+git merge feature/change-password
+```
+
+We can now show how the tip of each branch have now been merged:
+```bash
+
+tom@tom-ubuntu:~/Projects/Venus$ git log --oneline --all --graph
+*   4201cab (HEAD -> master) Merge branch 'feature/change-password'
+|\  
+| * dcabad0 (feature/change-password) Build password form
+* | 879bde6 Edit objectives.txt
+|/  
+*   16e20eb Merge branch 'bugfix/login'
+|\  
+| * 2b4b44b (bugfix/login) Add table of content edit
+|/  
+* 7870993 (bugfix/signup-form) Fix bug preventing signup
+| * 3e36f77 (refs/stash) WIP on master: 3ba242d add note on audience
+|/| 
+| * 754d6f0 index on master: 3ba242d add note on audience
+|/  
+
+```
+
+We can view merged branches with:
+```bash
+git branch --merged
+```
+We can also check unmerged branches with:
+```bash
+git branch --no-merged
+```
+
+### Conflicts
+- change1, change2
+- change, delete
+- Add1, Add2
+
+#### Undoing a faulty merge
+![image](https://user-images.githubusercontent.com/27693622/233746819-51490a54-bf5f-4cb5-b1a3-fd836faa45d7.png)
+
+We can reset or delete the merge conflict locally:
+```bash
+git reset --hard HEAD~1
+```
+The merge commit is deleted and the branch is reset to the commit before the merge. We should only do this if we haven't shared our history
+with anyone else.
+
+Sometimes we merge and we find that the code does not compile or code does not work as expected. We can undo the merge with:
+```bash
+git revert -m 1 HEAD
+```
+
+We can use squash merging with shortlived branches:
+
+```bash
+git merge --squash bugfix/photo-upload
+```
+We should delete the branch following the squash merge:
+```bash
+git branch -D bugfix/photo-upload
+```
+
+### Rebase
+We can rebase a branch onto another branch:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git log --all --oneline --graph
+* b7a302b (HEAD -> master) update toc.txt
+| * 1bed238 (feature/shopping-cart) add cart.txt
+|/  
+* 6d88063 Fix the bug on the photo upload page.
+* 872c064 ignore .idea files
+* e712b69 fix conflict
+* 7782e40 add master
+*   588f8a8 Merge branch 'bugfix/change-password'
+```
+With rebase we move the base of feature onto the top of the master branch:
+```bash
+tom@tom-ubuntu:~/Projects/Venus$ git switch feature/shopping-cart 
+Switched to branch 'feature/shopping-cart'
+tom@tom-ubuntu:~/Projects/Venus$ git rebase master
+Successfully rebased and updated refs/heads/feature/shopping-cart.
+tom@tom-ubuntu:~/Projects/Venus$ git log --all --graph --oneline
+* 18072b4 (HEAD -> feature/shopping-cart) add cart.txt
+* b7a302b (master) update toc.txt
+* 6d88063 Fix the bug on the photo upload page.
+* 872c064 ignore .idea files
+* e712b69 fix conflict
+* 7782e40 add master
+*   588f8a8 Merge branch 'bugfix/change-password'
+```
+The history is now linear.
+
+We can also cherry-pick commits:
+```bash
+git cherry-pick 78ad906
+```
+This applies the commit to the current branch:
+
+```bash
+git log --oneline --all --graph
+* 8f1a284 (HEAD -> master) write mountain to toc.txt
+* ad8744f update toc.txt
+| * 78ad906 (feature/shopping-cart) write mountain to toc.txt
+|/  
+* 18072b4 add cart.txt
+* b7a302b update toc.txt
+* 6d88063 Fix the bug on the photo upload page.
+* 872c064 ignore .idea files
+* e712b69 fix conflict
+* 7782e40 add master
+```
+We have applied the commit on the other branch to the current branch.
+
+### Collaboration
+- collaboration workflows
+- pushing, fetching and pulling
+- pull requests, issues and milestones
+- contributing to open source projects
 
