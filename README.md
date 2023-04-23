@@ -1689,3 +1689,25 @@ We have applied the commit on the other branch to the current branch.
 - pull requests, issues and milestones
 - contributing to open source projects
 
+#### Workflows
+- centralized
+  - single repository
+- distributed
+  - every dev has a repository
+- centralized workflow
+  - centralized repository to syncrhonise work
+- feature branch workflow
+  - each feature is developed on a separate branch
+  - branches are merged into master
+  - branches are deleted after merging
+  - no single point of failure
+- repository
+  - private server
+  - hosting cloud services
+- integration manager workflow
+  - integration manager has write access to the repository
+  - integration manager merges branches into master
+  - integration manager deletes branches after merging
+  - integration manager is a bottleneck
+  - integration manager is a single point of failure
+
