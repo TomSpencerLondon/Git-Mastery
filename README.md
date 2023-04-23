@@ -1711,3 +1711,47 @@ We have applied the commit on the other branch to the current branch.
   - integration manager is a bottleneck
   - integration manager is a single point of failure
 
+#### Sharing tags
+We can share tags with:
+```bash
+tom@tom-ubuntu:~/Projects/Mars$ git tag v1.0
+tom@tom-ubuntu:~/Projects/Mars$ git log --oneline
+23f4c68 (HEAD -> main, tag: v1.0, origin/main) add file 1
+99fb8db Update README
+340c6cf Update README.md
+70c70ec Update README.md
+8fc6c2e Update README.md
+e95b243 first commit
+tom@tom-ubuntu:~/Projects/Mars$ git push origin v1.0
+Total 0 (delta 0), reused 0 (delta 0), pack-reused 0
+To github.com:TomSpencerLondon/Mars.git
+ * [new tag]         v1.0 -> v1.0
+```
+We can delete tags on origin with:
+```bash
+tom@tom-ubuntu:~/Projects/Mars$ git push origin --delete v1.0
+To github.com:TomSpencerLondon/Mars.git
+ - [deleted]         v1.0
+```
+We can delete them locally with:
+```bash
+tom@tom-ubuntu:~/Projects/Mars$ git log --oneline
+23f4c68 (HEAD -> main, tag: v1.0, origin/main) add file 1
+99fb8db Update README
+340c6cf Update README.md
+70c70ec Update README.md
+8fc6c2e Update README.md
+e95b243 first commit
+tom@tom-ubuntu:~/Projects/Mars$ git tag -d v1.0
+Deleted tag 'v1.0' (was 23f4c68)
+tom@tom-ubuntu:~/Projects/Mars$ git log --oneline
+23f4c68 (HEAD -> main, origin/main) add file 1
+99fb8db Update README
+340c6cf Update README.md
+70c70ec Update README.md
+8fc6c2e Update README.md
+e95b243 first commit
+```
+We can add releases with tags on github:
+![image](https://user-images.githubusercontent.com/27693622/233861334-0e3a4af2-4b70-402c-be7b-42b5a839c605.png)
+
